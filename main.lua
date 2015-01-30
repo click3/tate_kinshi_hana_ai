@@ -5,10 +5,10 @@ dofile("my_lib.lua");
 dofile("ka_ai_duka_lib.lua");
 
 function my_main()
-  local i = 0;
+  local frame_count = 0;
   while true do
-    print(i);
-    i = i + 1;
+    print(frame_count);
+    frame_count = frame_count + 1;
     yield();
   end
 end
