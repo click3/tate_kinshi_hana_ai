@@ -12,6 +12,7 @@ else
   end
 end
 
+--[[
 function error(message, level)
   if (level ~= 0) then
     level = level + 1;
@@ -19,6 +20,7 @@ function error(message, level)
   print(create_error_string(message, level));
   assert(false, message);
 end
+]]
 
 is_initialized = false;
 
