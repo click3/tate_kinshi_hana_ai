@@ -127,9 +127,13 @@ end
 function thread_call()
   local i = 0;
   while (i < thread_num) do
-    local ret = coroutine.resume(thread_list[i], unpack(thread_param[i], 1));
+    local ret, message = coroutine.resume(thread_list[i], unpack(thread_param[i], 1));
     thread_param[i] = {};
-    if (ret) then
+    if (not ret) then
+      error(message, 1);
+    end
+    local is_alive = (coroutine.status(thread_list[i]) ~= "dead");
+    if (is_alive) then
       i = i + 1;
     else
       table.remove(thread_list, i);
