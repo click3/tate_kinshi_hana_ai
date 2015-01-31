@@ -136,7 +136,7 @@ end
 
 function is_slow_safe(field, player, dir)
   local x = player.x;
-  local fast = player.speedFast;
+  local fast = math.ceil(player.speedFast + 1); -- Œë”»’è‚ª‘½‚¢‚Ì‚Å—]•ª–Ú‚É
   local slow = player.speedSlow;
   local index_fast = math.max(1, math.min(300, math.floor(x + 150 + fast * dir + 0.5)));
   local index_slow = math.max(1, math.min(300, math.floor(x + 150 + slow * dir + 0.5)));
