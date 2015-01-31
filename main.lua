@@ -3,6 +3,7 @@ is_debug = true;
 
 dofile("my_lib.lua");
 dofile("ka_ai_duka_lib.lua");
+dofile("key_manager.lua");
 
 DISTANCE_MAX = 65536;
 UNSAFE = 300;
@@ -196,36 +197,33 @@ function my_main()
         if (x < 0) then
           if (is_right_safe(field)) then
             print("move right(center)");
-            sendKeys(2 ^ 7);
+            push_key(KEY_RIGHT);
           end
         elseif (x > 0) then
           if (is_left_safe(field)) then
             print("move left(center)");
-            sendKeys(2^ 6);
+            push_key(KEY_LEFT);
           end
         else
-          sendKeys(0);
         end
       elseif (distance == 0) then
         debug_assert(false, field);
-        sendKeys(2 ^ 1);
+        push_key(KEY_BOMB);
       else
         if (left == UNSAFE and right == UNSAFE) then
           -- TODO
         elseif (left < right) then
           print("move left(safe)");
-          local key = 2 ^ 6;
+          push_key(KEY_LEFT);
           if (is_slow_safe(field, player, -1)) then
-            key = key + (2 ^ 2);
+            push_key(KEY_SLOW);
           end
-          sendKeys(key);
         else
           print("move right(safe)");
-          local key = 2 ^ 7;
+          push_key(KEY_RIGHT);
           if (is_slow_safe(field, player, 1)) then
-            key = key + (2 ^ 2);
+            push_key(KEY_SLOW);
           end
-          sendKeys(key);
         end
       end
     end
