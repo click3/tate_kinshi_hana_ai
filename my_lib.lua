@@ -110,9 +110,25 @@ end
 -- micro_threadŠÖŒW
 
 
+head_thread_list = {};
+head_thread_param = {};
+head_thread_num = 0;
 thread_list = {};
 thread_param = {};
 thread_num = 0;
+tail_thread_list = {};
+tail_thread_param = {};
+tail_thread_num = 0;
+
+function create_head_thread(proc, ...)
+  if (proc == nil)then
+    error("ArgumentError",2);
+  end
+
+  head_thread_list[head_thread_num] = coroutine.create(proc);
+  head_thread_param[head_thread_num] = {...};
+  head_thread_num = head_thread_num + 1;
+end
 
 function create_thread(proc, ...)
   if (proc == nil)then
@@ -124,7 +140,17 @@ function create_thread(proc, ...)
   thread_num = thread_num + 1;
 end
 
-function thread_call()
+function create_tail_thread(proc, ...)
+  if (proc == nil)then
+    error("ArgumentError",2);
+  end
+
+  tail_thread_list[tail_thread_num] = coroutine.create(proc);
+  tail_thread_param[tail_thread_num] = {...};
+  tail_thread_num = tail_thread_num + 1;
+end
+
+function thread_call_inner(thread_list, thread_param, thread_num)
   local i = 0;
   while (i < thread_num) do
     local ret, message = coroutine.resume(thread_list[i], unpack(thread_param[i], 1));
@@ -141,6 +167,13 @@ function thread_call()
       thread_num = thread_num - 1;
     end
   end
+  return thread_num;
+end
+
+function thread_call()
+  head_thread_num = thread_call_inner(head_thread_list, head_thread_param, head_thread_num);
+  thread_num = thread_call_inner(thread_list, thread_param, thread_num);
+  tail_thread_num = thread_call_inner(tail_thread_list, tail_thread_param, tail_thread_num);
 end
 
 function yield()
