@@ -150,30 +150,48 @@ function create_tail_thread(proc, ...)
   tail_thread_num = tail_thread_num + 1;
 end
 
-function thread_call_inner(thread_list, thread_param, thread_num)
+THREAD_TYPE_HEAD = 1;
+THREAD_TYPE_NORMAL = 2;
+THREAD_TYPE_TAIL = 3;
+
+function thread_call_inner(list, param, num, thread_type)
   local i = 0;
-  while (i < thread_num) do
-    local ret, message = coroutine.resume(thread_list[i], unpack(thread_param[i], 1));
-    thread_param[i] = {};
+  while (i < num) do
+    local ret, message = coroutine.resume(list[i], unpack(param[i], 1));
+    param[i] = {};
+    if (thread_type == THREAD_TYPE_HEAD) then
+      num = head_thread_num;
+    elseif (thread_type == THREAD_TYPE_NORMAL) then
+      num = thread_num;
+    else
+      num = tail_thread_num;
+    end
     if (not ret) then
       error(message, 1);
     end
-    local is_alive = (coroutine.status(thread_list[i]) ~= "dead");
+    local is_alive = (coroutine.status(list[i]) ~= "dead");
     if (is_alive) then
       i = i + 1;
     else
-      table.remove(thread_list, i);
-      table.remove(thread_param, i);
-      thread_num = thread_num - 1;
+      table.remove(list, i);
+      table.remove(param, i);
+      num = num - 1;
+      if (thread_type == THREAD_TYPE_HEAD) then
+        head_thread_num = num;
+      elseif (thread_type == THREAD_TYPE_NORMAL) then
+        thread_num = num;
+      else
+        tail_thread_num = num;
+      end
     end
   end
-  return thread_num;
+  return num;
 end
 
 function thread_call()
-  head_thread_num = thread_call_inner(head_thread_list, head_thread_param, head_thread_num);
-  thread_num = thread_call_inner(thread_list, thread_param, thread_num);
-  tail_thread_num = thread_call_inner(tail_thread_list, tail_thread_param, tail_thread_num);
+  head_thread_num = thread_call_inner(head_thread_list, head_thread_param, head_thread_num, THREAD_TYPE_HEAD);
+  thread_num = thread_call_inner(thread_list, thread_param, thread_num, THREAD_TYPE_NORMAL);
+  tail_thread_num = thread_call_inner(tail_thread_list, tail_thread_param, tail_thread_num, THREAD_TYPE_TAIL);
 end
 
 function yield()
