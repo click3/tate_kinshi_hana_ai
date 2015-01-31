@@ -1,24 +1,93 @@
 
-is_debug = true;
+--[[
+
+
+AI名：縦移動禁止花AI@メディスン
+
+
+縦移動を封印し、横移動だけに特化してそこそこ戦えるようにしたAI。
+別になめプではなく、余裕こきすぎて24時間しか作業時間が取れなかったため、
+実装内容を絞って時間対効率の最大化を図ったためこうなった。
+
+アルゴリズムも最初考えていたものが処理速度上不可能と発覚したので即興。
+その割には結構いい線いってるのではなかろうか。
+
+@メディスンとあるが、別にメディスン用にカスタマイズされているわけでもなく、どのキャラでも動く。
+単に作者がメディスン好きなだけである。
+メディスンかわいいよメディスン。
+
+一応LunaAI相手でもラウンド取れることもあるぐらいにはちゃんと戦える。
+※ただし咲夜さんと映姫様除く。
+
+
+仕組み：
+自身のy座標一列分の配列(以下危険度マップ)を作り
+弾や敵などに対し、そのy座標に到達するまでにかかる時間と、到達したときのx座標を算出。
+その周囲を到達までの時間で埋めるを繰り返す。
+
+すると、弾が到達するまでにかかる時間が長いx座標ほど安全という理屈により、
+どの辺のx座標を目指せばいいかがなんとなくわかるので、
+あとはそれを念頭に置いて移動したり色々するだけのAI。
+
+一応軽いキャラ対策などは入れたが、後述の弱点のように問題点は多い。
+それ以外にも、粒弾相手でも被弾してしまうようなコーナーケースのつぶしは足りないし、
+長期的展望による回避行動もとらないし、C2の運用やコンボなど改善の余地はたくさんある。
+
+
+弱点：
+当然ながら縦には移動しない(というか後ろの弾がまったく見えていないので出来ない)ので、
+咲夜さんのC2/C3は撃たれたら真横弾で落ちるのは確定。
+映姫様の自機狙いレーザーの対策をとっていないので、されるとあっという間に死ぬ。
+文さんのExは判定強いくせに早いので、ちょっと周囲の弾配置が悪いとすぐ詰む。
+ルナサを相手にすると後ろから弾が飛んでくるため運ゲー化する。
+チルノはパーフェクトフリーズで背後の弾がこっち向かってくると避ける手段がない。
+ミスティアは未対策なので、チャージアタックの弾源に重なり落ちる光景がよく見られる。
+てゐさんは中央からちょっと外れるとExの軌道に巻き込まれ、そのまま壁と挟まれて死ぬ。
+
+
+ライセンス：
+・本ライセンスにおいて、全ての条項は「変更の有無を問わず、明示暗示を問わず、商業慈善を問わず、
+  個人法人を問わず、保持使用を問わず、有料無料を問わず、全体一部を問わず、コピー派生を問わず
+  実行ファイルソースファイルを問わず、故意錯誤を問わず」と装飾されている物として扱う。
+・著作権者は本ソフトウェアに関する一切の保障義務をもたない。
+・上記条項唯一の例外として、本ライセンスに違反した場合を除いて著作権者から
+  本ソフトウェアに関する一切の法的措置を受ける事が無い事のみ保証される。
+・著作権者やその他保持者がこのライセンスの範囲で行う活動に支障が無い範囲であれば何を行っても構わない。
+・上記条項の”何を行っても構わない”には本ソフトウェアの製作者を偽っての再配布も含まれる。
+・全ての権利の行使において、著作権者への連絡、著作権者やライセンス条項の記載、
+  適用ライセンスなどの制限は一切存在しない。
+著作権者名：sweetie
+メールアドレス：ｓｗｅｅｔｉｅ（あっと）ｃｌｉｃｋ３．ｏｒｇ
+
+
+]]
+
+-- trueだとprintがファイル出力になり、被弾したら実行が止まる
+is_debug = false;
 
 dofile("my_lib.lua");
 dofile("ka_ai_duka_lib.lua");
 dofile("key_manager.lua");
 
+-- 定数
 DISTANCE_MAX = 65536;
 UNSAFE = 300;
+
+-- 調整することもある定数
 SAFE_MARGIN = 1.0;
 SAFE_MARGIN_POINT = 2;
 DEFAULT_Y_POSITION = 384;
 CHARGE_TRIGGER_BULLET_COUNT = 100;
 CHECK_DISTANCE_MAX = 50;
 
+-- 危険度マップを初期化
 function clear_field(field)
   for x = 1, 300 do
     field[x] = DISTANCE_MAX;
   end
 end
 
+-- playerのy座標まで到達するのにかかるフレーム数と、その際のx座標やあたり判定の大きさを返す
 function get_distance_and_x_and_width(obj)
   local player = game_sides[player_side].player;
   local distance = (player.y - obj.y) / obj.vy;
@@ -57,6 +126,7 @@ function update_field_single(field, player, obj)
   end
 end
 
+-- 相手側のGameSideを取得する
 function get_enemy_game_side()
   local index = 1;
   if (player_side == 1) then
@@ -65,6 +135,7 @@ function get_enemy_game_side()
   return game_sides[index];
 end
 
+-- 危険度配列を更新する
 function update_field(field)
   local my_game_side = game_sides[player_side];
   local player = my_game_side.player;
@@ -142,6 +213,7 @@ function get_safe_area_inner(field, x, distance, speed, step)
   return UNSAFE;
 end
 
+-- 左右それぞれで安全な場所までどれぐらい距離があるかを返す
 function get_safe_area(field)
   local player = game_sides[player_side].player;
   local x = math.ceil(player.x);
@@ -166,14 +238,18 @@ function is_safe(field, step)
   return true;
 end
 
+-- 左方向がある程度安全かを調べる
 function is_left_safe(field)
   return is_safe(field, -1);
 end
 
+-- 右方向がある程度安全かを調べる
 function is_right_safe(field)
   return is_safe(field, 1);
 end
 
+-- 低速の方が安全な場合にtrue
+-- 数ピクセルだけの安全地帯に滑り込む用
 function is_slow_safe(field, player, dir)
   local x = player.x;
   local fast = math.ceil(player.speedFast + 1); -- 誤判定が多いので余分目に
@@ -191,6 +267,7 @@ function fix_bug()
   player.hitBodyRect.height = 3;
 end
 
+-- デバッグ用
 function create_field_string(field, start_index, end_index)
   if (not is_debug) then
     return "";
@@ -204,6 +281,7 @@ function create_field_string(field, start_index, end_index)
   return str;
 end
 
+-- デバッグ用
 function debug_assert(expression, field)
   if (not is_debug or expression) then
     return;
@@ -218,6 +296,7 @@ function debug_assert(expression, field)
   error("assert!", 2);
 end
 
+-- デバッグ用
 function monitoring(field)
   local my_game_side = game_sides[player_side];
   local player = my_game_side.player;
@@ -232,8 +311,8 @@ function monitoring(field)
   end
 end
 
+-- 経過フレーム数をカウントする
 frame_count = 0;
-
 function count_frame_thread()
   while (true) do
     frame_count = frame_count + 1;
@@ -241,6 +320,9 @@ function count_frame_thread()
   end
 end
 
+-- 射撃を打ち続ける
+-- メディスンの毒霧で敵の動作不良を狙いたいのでコンボ切りはしない
+-- が、雑魚敵を追ったりはせずコンボは途切れやすいのであまり意味はない
 function shot_thread()
   while (true) do
     if ((frame_count % 2) == 0) then
@@ -250,6 +332,8 @@ function shot_thread()
   end
 end
 
+-- y座標を指定値に維持する
+-- ぶっちゃけ最下段のほうがいいのだが、見栄えがいいので初期y座標を維持させている
 function keep_y_position()
   while (true) do
     local player = game_sides[player_side].player;
@@ -264,6 +348,7 @@ function keep_y_position()
   end
 end
 
+-- 被弾監視
 is_damage = false;
 function check_damage()
   local life = 10.0;
@@ -279,6 +364,8 @@ function check_damage()
   end
 end
 
+-- C2～C4を使ったかを監視している
+-- キー入力時にフラグ立ててもいいけど、こうやって独立させた方が見通しは良い
 is_charge_attack = false;
 function check_charge_attack()
   local prev = 100;
@@ -295,6 +382,8 @@ function check_charge_attack()
   end
 end
 
+-- 無敵チェック
+-- 無敵時間とか数値はおざなり
 is_invincible = false;
 function check_invincible()
   local invincible_frame_count = 0;
@@ -312,6 +401,7 @@ function check_invincible()
   end
 end
 
+-- ゲージが3本以上あって弾が多いならC2を試みる
 function try_charge()
   while (true) do
     local my_game_side = game_sides[player_side];
@@ -331,6 +421,8 @@ function try_charge()
   end
 end
 
+-- エントリーポイント
+-- mainさんはマイクロスレッド内部で使用されている
 function my_main()
   print("ai initialize");
   create_head_thread(check_damage);
