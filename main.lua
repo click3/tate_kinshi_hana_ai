@@ -68,6 +68,15 @@ function update_field(field)
   for index, ex in ipairs(my_game_side.exAttacks) do
     if (ex.hitBody and ex.type == ExAttackType.Reimu) then
       ex.hitBody.radius = 21;
+    elseif ((not ex.hitBody) and ex.type == CharacterType.Youmu) then
+      ex.vx = 4;
+      ex.vy = 4;
+      ex.hitBody = {
+        x = ex.x;
+        y = ex.y;
+        type = HitType.Circle;
+        radius = 14;
+      };
     end
     update_field_single(field, player, ex);
   end
