@@ -56,6 +56,14 @@ function update_field_single(field, player, obj)
   end
 end
 
+function get_enemy_game_side()
+  local index = 1;
+  if (player_side == 1) then
+    index = 2;
+  end
+  return game_sides[index];
+end
+
 function update_field(field)
   local my_game_side = game_sides[player_side];
   local player = my_game_side.player;
@@ -64,6 +72,21 @@ function update_field(field)
     update_field_single(field, player, bullet);
   end
   for index, enemy in ipairs(my_game_side.enemies) do
+    if (enemy.isPseudoEnemy) then
+      local enemy_player = get_enemy_game_side().player;
+      if (enemy_player.character == CharacterType.Marisa) then
+        local width = 40;
+        enemy.vx = 0;
+        enemy.vy = 1;
+        enemy.y = DEFAULT_Y_POSITION - enemy.vy * 10 - width;
+        enemy.hitBody = {
+          x = enemy.x;
+          y = enemy.y;
+          type = HitType.Rect;
+          width = width;
+        };
+      end
+    end
     update_field_single(field, player, enemy);
   end
   for index, ex in ipairs(my_game_side.exAttacks) do
