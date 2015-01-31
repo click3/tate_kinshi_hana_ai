@@ -8,6 +8,7 @@ dofile("key_manager.lua");
 DISTANCE_MAX = 65536;
 UNSAFE = 300;
 SAFE_MARGIN = 1.0;
+SAFE_MARGIN_POINT = 2;
 DEFAULT_Y_POSITION = 384;
 
 function clear_field(field)
@@ -35,8 +36,7 @@ function update_field_single(field, player, obj)
     return;
   end
   local distance, x, width = get_distance_and_x_and_width(obj);
-  width = width + width / 2;
-  width = width * SAFE_MARGIN;
+  width = width * SAFE_MARGIN + SAFE_MARGIN_POINT;
   if (distance + width < 0) then
     return;
   end
