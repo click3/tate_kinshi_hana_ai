@@ -261,6 +261,7 @@ function check_invincible()
 end
 
 function my_main()
+  print("ai initialize");
   create_head_thread(check_damage);
   create_thread(count_frame_thread);
   create_thread(shot_thread);
