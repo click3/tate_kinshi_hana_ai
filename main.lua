@@ -156,7 +156,7 @@ function debug_assert(expression, field)
     str = str .. string.format("%.0f, ", field[i]);
   end
   print(str);
-  assert(false);
+  error("assert!", 2);
 end
 
 function monitoring(field)
