@@ -63,6 +63,9 @@ function update_field(field)
   for index, enemy in ipairs(my_game_side.enemies) do
     update_field_single(field, player, enemy);
   end
+  for index, ex in ipairs(my_game_side.exAttacks) do
+    update_field_single(field, player, ex);
+  end
 end
 
 function get_safe_area_inner(field, x, distance, speed, step)
