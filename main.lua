@@ -176,9 +176,28 @@ function monitoring(field)
   end
 end
 
+frame_count = 0;
+
+function count_frame_thread()
+  while (true) do
+    frame_count = frame_count + 1;
+    yield();
+  end
+end
+
+function shot_thread()
+  while (true) do
+    if ((frame_count % 2) == 0) then
+      push_key(KEY_SHOT);
+    end
+    yield();
+  end
+end
+
 function my_main()
+  create_thread(count_frame_thread);
+  create_thread(shot_thread);
   local life = 10.0;
-  local frame_count = 0;
   local field = {};
   clear_field(field);
   while true do
@@ -227,7 +246,6 @@ function my_main()
         end
       end
     end
-    frame_count = frame_count + 1;
     yield();
   end
 end
