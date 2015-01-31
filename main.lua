@@ -146,6 +146,19 @@ function fix_bug()
   player.hitBodyRect.height = 3;
 end
 
+function create_field_string(field, start_index, end_index)
+  if (not is_debug) then
+    return "";
+  end
+  local str = "";
+  for index = start_index, end_index do
+    if (1 <= index and index <= 300) then
+      str = str .. string.format("%.0f, ", field[index]);
+    end
+  end
+  return str;
+end
+
 function debug_assert(expression, field)
   if (not is_debug or expression) then
     return;
@@ -154,26 +167,16 @@ function debug_assert(expression, field)
   local player = my_game_side.player;
   print(string.format("%f:%f", player.x, player.y));
   print(my_game_side.bullets);
-  local str = "";
-  for i = 1, 300 do
-    str = str .. string.format("%.0f, ", field[i]);
-  end
-  print(str);
+  print(create_field_string(field, 1, 300));
   error("assert!", 2);
 end
 
 function monitoring(field)
   local my_game_side = game_sides[player_side];
   local player = my_game_side.player;
-  print(my_game_side.bullets);
-  local str = "";
-  for i = -15, 15 do
-    local index = math.floor(player.x + 0.5) + 150 + i;
-    if (1 <= index and index <= 300) then
-      str = str .. string.format("%.0f, ", field[index]);
-    end
-  end
-  print(str);
+  local x = math.floor(player.x + 0.5);
+  print(create_field_string(field, x + 150 - 15, x + 150));
+  print(create_field_string(field, x + 150, x + 150 + 15));
   do return; end
   for i, bullet in ipairs(my_game_side.bullets) do
     if (not bullet.hitBody) then
@@ -207,6 +210,7 @@ function my_main()
   local field = {};
   clear_field(field);
   while true do
+    print("\nrun");
     fix_bug();
     local my_game_side = game_sides[player_side];
     local player = my_game_side.player;
