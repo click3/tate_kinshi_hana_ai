@@ -11,6 +11,7 @@ SAFE_MARGIN = 1.0;
 SAFE_MARGIN_POINT = 2;
 DEFAULT_Y_POSITION = 384;
 CHARGE_TRIGGER_BULLET_COUNT = 100;
+CHECK_DISTANCE_MAX = 50;
 
 function clear_field(field)
   for x = 1, 300 do
@@ -43,7 +44,7 @@ function update_field_single(field, player, obj)
   end
   distance = math.max(0, math.floor(distance - width));
   width = width + (width / obj.vy) * obj.vx;
-  if (distance < 50) then
+  if (distance < CHECK_DISTANCE_MAX) then
     local start_pos = math.max(-149, math.floor(x - width)) + 150;
     local end_pos = math.min(149, math.ceil(x + width)) + 150;
     local i = start_pos;
@@ -75,7 +76,7 @@ function update_field(field)
     if (enemy.isPseudoEnemy) then
       local enemy_player = get_enemy_game_side().player;
       if (enemy_player.character == CharacterType.Marisa) then
-        local width = 40;
+        local width = 25;
         enemy.vx = 0;
         enemy.vy = 1;
         enemy.y = DEFAULT_Y_POSITION - enemy.vy * 10 - width;
