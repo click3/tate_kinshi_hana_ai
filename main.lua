@@ -10,6 +10,7 @@ UNSAFE = 300;
 SAFE_MARGIN = 1.0;
 SAFE_MARGIN_POINT = 2;
 DEFAULT_Y_POSITION = 384;
+CHARGE_TRIGGER_BULLET_COUNT = 80;
 
 function clear_field(field)
   for x = 1, 300 do
@@ -296,7 +297,7 @@ function try_charge()
         push_key(KEY_SHOT);
       end
     elseif (player.currentChargeMax >= 300) then
-      if (my_game_side.bullets[80]) then
+      if (my_game_side.bullets[CHARGE_TRIGGER_BULLET_COUNT]) then
         push_key(KEY_SHOT);
       end
     end
