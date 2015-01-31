@@ -285,6 +285,25 @@ function check_invincible()
   end
 end
 
+function try_charge()
+  while (true) do
+    local my_game_side = game_sides[player_side];
+    local player = my_game_side.player;
+    if (player.currentCharge > 0) then
+      if (player.currentCharge >= 200) then
+        -- ショットボタンを押さない
+      else
+        push_key(KEY_SHOT);
+      end
+    elseif (player.currentChargeMax >= 300) then
+      if (my_game_side.bullets[80]) then
+        push_key(KEY_SHOT);
+      end
+    end
+    yield();
+  end
+end
+
 function my_main()
   print("ai initialize");
   create_head_thread(check_damage);
@@ -292,6 +311,7 @@ function my_main()
   create_thread(shot_thread);
   create_thread(keep_y_position);
   create_thread(check_invincible);
+  create_thread(try_charge);
   local field = {};
   clear_field(field);
   while true do
