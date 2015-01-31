@@ -77,14 +77,18 @@ function get_safe_area_inner(field, x, distance, speed, step)
     if (index < 1 or index > 300) then
       break;
     end
-    if (field[index] > distance) then
+    local target_field = field[index];
+    if (target_field <= i + 1) then
+      break;
+    end
+    if (target_field > distance) then
       local is_success = true;
       for j = 1, speed do
         local index2 = index + step * j;
         if (index2 < 1 or index2 > 300) then
           break;
         end
-        if (field[index2] < field[index]) then
+        if (field[index2] < target_field) then
           is_success = false;
           break;
         end
