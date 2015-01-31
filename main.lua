@@ -35,7 +35,7 @@ function update_field_single(field, player, obj)
     return;
   end
   local distance, x, width = get_distance_and_x_and_width(obj);
-  width = width + player.hitBodyRect.width / 2;
+  width = width + width / 2;
   width = width * SAFE_MARGIN;
   if (distance + width < 0) then
     return;
