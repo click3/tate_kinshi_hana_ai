@@ -296,8 +296,10 @@ function my_main()
         else
         end
       elseif (distance == 0) then
-        debug_assert(false, field);
-        push_key(KEY_BOMB);
+        if (not is_invincible) then
+          debug_assert(false, field);
+          push_key(KEY_BOMB);
+        end
       else
         if (left == UNSAFE and right == UNSAFE) then
           -- TODO
