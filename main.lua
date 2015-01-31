@@ -243,6 +243,22 @@ function check_damage()
   end
 end
 
+is_charge_attack = false;
+function check_charge_attack()
+  local prev = 100;
+  while (true) do
+    local player = game_sides[player_side].player;
+    local cur = player.currentChargeMax;
+    if (prev > cur) then
+      is_charge_attack = true;
+    else
+      is_charge_attack = false;
+    end
+    prev = cur;
+    yield();
+  end
+end
+
 is_invincible = false;
 function check_invincible()
   local invincible_frame_count = 0;
@@ -252,7 +268,7 @@ function check_invincible()
     else
       is_invincible = false;
     end
-    if (is_damage) then
+    if (is_damage or is_charge_attack) then
       invincible_frame_count = 30;
       is_invincible = true;
     end
