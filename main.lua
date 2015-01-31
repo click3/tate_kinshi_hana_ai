@@ -70,7 +70,7 @@ function update_field(field)
     if (ex.hitBody and ex.type == ExAttackType.Reimu) then
       ex.hitBody.radius = 21;
     elseif (not ex.hitBody) then
-      if (ex.type == CharacterType.Youmu) then
+      if (ex.type == ExAttackType.Youmu) then
         ex.vx = 4;
         ex.vy = 4;
         ex.hitBody = {
