@@ -83,7 +83,7 @@ function get_safe_area_inner(field, x, distance, speed, step)
       break;
     end
     local target_field = field[index];
-    if (target_field <= i + 1) then
+    if (target_field <= (i + 1) / speed) then
       break;
     end
     if (target_field > distance) then
