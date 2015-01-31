@@ -278,7 +278,7 @@ function check_invincible()
       is_invincible = false;
     end
     if (is_damage or is_charge_attack) then
-      invincible_frame_count = 30;
+      invincible_frame_count = 90;
       is_invincible = true;
     end
     yield();
