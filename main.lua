@@ -65,6 +65,9 @@ function update_field(field)
     update_field_single(field, player, enemy);
   end
   for index, ex in ipairs(my_game_side.exAttacks) do
+    if (ex.hitBody and ex.type == ExAttackType.Reimu) then
+      ex.hitBody.radius = 21;
+    end
     update_field_single(field, player, ex);
   end
 end
