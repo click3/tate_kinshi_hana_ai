@@ -228,11 +228,44 @@ function keep_y_position()
   end
 end
 
+is_damage = false;
+function check_damage()
+  local life = 10.0;
+  while (true) do
+    local player = game_sides[player_side].player;
+    if (life ~= player.life) then
+      life = player.life;
+      is_damage = true;
+    else
+      is_damage = false;
+    end
+    yield();
+  end
+end
+
+is_invincible = false;
+function check_invincible()
+  local invincible_frame_count = 0;
+  while (true) do
+    if (invincible_frame_count > 0) then
+      invincible_frame_count = invincible_frame_count - 1;
+    else
+      is_invincible = false;
+    end
+    if (is_damage) then
+      invincible_frame_count = 30;
+      is_invincible = true;
+    end
+    yield();
+  end
+end
+
 function my_main()
+  create_head_thread(check_damage);
   create_thread(count_frame_thread);
   create_thread(shot_thread);
   create_thread(keep_y_position);
-  local life = 10.0;
+  create_thread(check_invincible);
   local field = {};
   clear_field(field);
   while true do
@@ -241,7 +274,7 @@ function my_main()
     local my_game_side = game_sides[player_side];
     local player = my_game_side.player;
     monitoring(field);
-    debug_assert(life == player.life, field);
+    debug_assert(not is_damage, field);
     if (-150 < player.x and player.x < 150 and 0 < player.y and player.y < 450) then
       update_field(field);
       local left, right = get_safe_area(field);
