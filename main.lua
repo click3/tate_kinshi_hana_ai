@@ -42,7 +42,7 @@ function update_field_single(field, player, obj)
   end
   distance = math.max(0, math.floor(distance - width));
   width = width + (width / obj.vy) * obj.vx;
-  if (distance < 30) then
+  if (distance < 50) then
     local start_pos = math.max(-149, math.floor(x - width)) + 150;
     local end_pos = math.min(149, math.ceil(x + width)) + 150;
     local i = start_pos;
