@@ -172,6 +172,8 @@ function debug_assert(expression, field)
   local player = my_game_side.player;
   print(string.format("%f:%f", player.x, player.y));
   print(my_game_side.bullets);
+  print(my_game_side.enemies);
+  print(my_game_side.exAttacks);
   print(create_field_string(field, 1, 300));
   error("assert!", 2);
 end
