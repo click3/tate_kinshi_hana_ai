@@ -66,6 +66,9 @@ function update_field(field)
 end
 
 function get_safe_area_inner(field, x, distance, speed, step)
+  if (distance == DISTANCE_MAX) then
+    return 0;
+  end
   for i = 1, 300 do
     local index = x + 150 + step * i;
     if (index < 1 or index > 300) then
