@@ -8,6 +8,7 @@ dofile("key_manager.lua");
 DISTANCE_MAX = 65536;
 UNSAFE = 300;
 SAFE_MARGIN = 1.0;
+DEFAULT_Y_POSITION = 384;
 
 function clear_field(field)
   for x = 1, 300 do
@@ -207,9 +208,24 @@ function shot_thread()
   end
 end
 
+function keep_y_position()
+  while (true) do
+    local player = game_sides[player_side].player;
+    local s = DEFAULT_Y_POSITION;
+    local e = DEFAULT_Y_POSITION + player.speedFast;
+    if (player.y < s) then
+      push_key(KEY_DOWN);
+    elseif (player.y > e) then
+      push_key(KEY_UP);
+    end
+    yield();
+  end
+end
+
 function my_main()
   create_thread(count_frame_thread);
   create_thread(shot_thread);
+  create_thread(keep_y_position);
   local life = 10.0;
   local field = {};
   clear_field(field);
